@@ -10,7 +10,7 @@ We’ll also use OpenZeppelin’s smart contract library to import a [Mintable-P
 This is a quick checklist of the minimum tech prerequisites to follow along: 
 1. npm package manager
 2. Truffle installed on your machine
-3. VsCode (Or any code editor of your choice)
+3. nano (Or any code editor of your choice)
 4. Metamask wallet connected with the IoTeX blockchain (check out the docs)
 
 ## Packages Installation
@@ -46,6 +46,10 @@ npm install @truffle/hdwallet-provider --save
 If you'd like to get into a little more detail on how to deploy your smart contracts with Truffle on IoTeX feel free to also check out our IoTeX docs [here](https://docs.iotex.io/dapp-development/web3-development/truffle).
 
 We're also going to install another useful package called `dotenv`, that loads environment variables from a `.env` file into `process.env` 
+
+```bash
+npm install dotenv --save
+```
 
 The last thing to do is to import OpenZeppelin’s smart contracts Library to create our Token and inherit its preset functionalities:
 
@@ -89,6 +93,11 @@ require('dotenv').config();
 const { MNEMONIC } = process.env;
 const HDWalletProvider = require('@truffle/hdwallet-provider');
 module.exports = {
+  compilers: {
+    solc: {
+      version: "^0.8.2",
+    }
+  },
   networks: {
     testnet: {
       provider: () =>

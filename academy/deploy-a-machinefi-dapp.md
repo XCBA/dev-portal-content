@@ -21,7 +21,7 @@ A MachineFi Dapp can be broken into 3 main components:
 ![img](https://user-images.githubusercontent.com/11096047/174353904-52b5869b-ed67-4ae9-b32d-30b17130d9df.png)
 
 
-At the end of this quick start you will have a working infrastructure including a device data simulator, an off-chain data layer that receives, verifies and stores data, and asimpla Layer one device authorization contract. 
+At the end of this quick start you will have a working infrastructure including a device data simulator, an off-chain data layer that receives, verifies and stores data, and a simple Layer-1 device authorization contract. 
 
 
 ## Requirements
@@ -113,6 +113,8 @@ echo IOTEX_PRIVATE_KEY=<YOUR_PRIVATE_KEY> > .env
 
 Deploy the contract using the following command. Replace `NETWORK` with either `testnet` or `mainnet`  
 ```shell
+# Make sure you are on node 14: 
+# nvm use 14
 npx hardhat run scripts/deploy.js --network <NETWORK>
 Eg: npx hardhat run scripts/deploy.js --network testnet
 ``` 
@@ -141,6 +143,7 @@ The configuration file for the data layer application is located in `src/project
 
 Run the provided npm script to build the data layer  
 ```shell
+cd ..
 npm run build
 ```
 
@@ -228,10 +231,30 @@ catchUp end at 14737993
 # Send simulated data
 ## Run the device simulator
 
-A simulator script is provided that sends some randomly generated data.  
-The simulator is located in the `simulator` directory. The environment file at `simulator/.env` is used to configure the simulator.  Use the `SEND_INTERVAL_SECONDS` variable to change the interval in which messages are being sent.  
+A device simulator script is provided that sends randomly generated data that are signed by a private key, supposed to the the device's securely generated key.
 
-In order to send test data using the simulator run the following  
+The simulator is located in the `simulator` directory. Create an environment file at `simulator/.env` from the template to configure the simulator:
+
+```bash
+cp simulator/.env.template simulator/.env
+```
+
+```bash
+# The private key of the device
+PRIVATE_KEY=0x1111111111111111111111111111111111111111111111111111111111111111
+
+# MQTT settings
+MQTT_BROKER_HOST="localhost"
+MQTT_BROKER_PORT=1883
+MQTT_USE_AUTHENTICATION=False
+MQTT_USER=user
+MQTT_PASSWORD=password
+
+# Interval in seconds between data messages
+SEND_INTERVAL_SECONDS=60
+```
+
+In order to send test data using the simulator run the following:  
 ```shell
 pip3 install -r simulator/requirements.txt
 python3 simulator/simulator.py
@@ -256,17 +279,17 @@ Follow the next steps in order to register your device.
 
 ## Authorize the device simulator in the smart contract
 
-You can use the provided `registerDevice` hardhat script to register your own device.  
-In order to do it follow the steps below.  
-Replace `DEVICE_ADDRESS` with your 0x prefixed device address.  
-Replace `CONTRACT_ADDRESS` with the 0x prefixed address of your contract.  
-Replace `NETWORK` with either testnet or mainnet.  
+You can use the provided `registerDevice` hardhat script to register your own device. In order to do it follow the commands below with changes that apply to your system:  
 
 ```shell
 cd blockchain
 npx hardhat registerDevice --deviceaddress <DEVICE_ADDRESS> --contractaddress <CONTRACT_ADDRESS> --network <NETWORK>
 # Eg: npx hardhat registerDevice --deviceaddress 0x19E7E376E7C213B7E7e7e46cc70A5dD086DAff2A --contractaddress 0x4fb87c52Bb6D194f78cd4896E3e574028fedBAB9  --network testnet
 ```
+
+Replace `DEVICE_ADDRESS` with your 0x prefixed simulated device address.  
+Replace `CONTRACT_ADDRESS` with the 0x prefixed address of your registru contract.  
+Replace `NETWORK` with either testnet or mainnet.  
 
 You should get some output similar to below  
 ```shell
@@ -330,7 +353,10 @@ You should see the Hasura interface
 ![](https://user-images.githubusercontent.com/82106612/172644818-5004bc18-994a-4100-8256-8317203f17b7.png)
 
 Click on Connect your first database  
-Enter the database name and url (you can find them in `docker-compose.yaml`)  
+
+Enter the database name and url. If you haven't modified the database name, the default url is `postgres://postgres:postgrespassword@postgres:5432/datalayerdb`. If you've modified it, then the url would be `postgres://postgres:postgrespassword@postgres:5432/<YOUR DATABASE NAME>`. 
+
+
 ![](https://user-images.githubusercontent.com/82106612/172646367-3923bbbc-ef16-4e67-b7ee-0a500e7c2d20.png)
 
 Click Connect database. Once connected click the `app` database on the left panel  
